@@ -1,0 +1,42 @@
+1. Установка LAMP (в консоли):
+	1) apt update && apt upgrade
+	2) sudo apt -y install apache2
+	3) sudo apt -y install mysql-server (либо sudo apt install mariadb-server)
+	4) sudo apt -y install php7.4 libapache2-mod-php7.4 php7.4-mysql
+	(5) дополнительно. sudo apt -y install php-curl php-json php-cgi php-gd php-zip php-mbstring php-xml php-xmlrpc)
+
+2. Установка phpMyAdmin и всего для него нужного:
+	1) sudo apt install phpmyadmin php-mbstring php-zip php-gd php-json php-curl
+	будет выбор: 
+	- Выбрать apache2. ! Hit SPACE, TAB, and then ENTER to select Apache
+	- Select Yes when asked whether to use dbconfig-common to set up the database
+	- Поставить пароль на phpMyAdmin
+	2) в консоли:
+	- sudo phpenmod mbstring
+	- sudo systemctl restart apache2
+
+3. Создание пользователя для PHPMYADMIN:
+	sudo mysql -u root -p
+	После ввода пароля root пользователя MySQL, введите следующие команды:
+	1) CREATE USER 'admin или другое имя пользователя бд'@'localhost' IDENTIFIED BY 'пароль';
+	2) GRANT ALL PRIVILEGES ON *.* TO 'test'@'localhost'; - все привилегии
+	3) FLUSH PRIVILEGES;
+
+4. Безопасность (добавление авторизации):
+	1) - в консоль: sudo vi /usr/share/phpmyadmin/.htaccess
+	   - вставить текст:
+	AuthType Basic
+	AuthName "Restricted Files"
+	AuthUserFile /etc/phpmyadmin/.htpasswd
+	Require valid-user
+	2) Далее создайте новый пароль для своего пользователя:
+	в консоль: sudo htpasswd -c /etc/phpmyadmin/.htpasswd пользователь
+	3) В файле /etc/apache2/apache2.conf значение AllowOverride ставим на All:
+	- в консоль: sudo vi /etc/apache2/apache2.conf
+	- добавляем эти строки:
+	<Directory /usr/share>
+		AllowOverride All
+		Require all granted
+	</Directory>
+	
+5. Сохраните изменения и закройте файл. Далее перезапустите apache: sudo systemctl restart apache2
